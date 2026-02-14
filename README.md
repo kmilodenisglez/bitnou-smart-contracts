@@ -157,11 +157,63 @@ pnpm hardhat test mocha test/BitnouCoin.test.ts
 
 ## Deployment
 
-### Using Hardhat Ignition
+### BNOU Token (ERC20 with Anti-Whale)
 
-The project includes two Ignition deployment modules:
+The **BNOUTokenModule** deploys the BNOU token contract with production-ready features:
+- Standard ERC20 implementation
+- Dynamic router selection (BSC Mainnet/Testnet, Ethereum)
+- Anti-whale protection with adjustable limits
+- Trading toggle to prevent launch front-running
+- Emergency token recovery
 
-#### BitnouCoreModule (Production)
+#### Using Ignition (Recommended)
+
+```bash
+# Deploy to BSC Testnet
+pnpm ignition:bnou:testnet
+
+# Deploy to BSC Mainnet
+pnpm ignition:bnou:mainnet
+
+# Or manually:
+pnpm hardhat ignition deploy ignition/modules/BNOUTokenModule.ts --network bscTestnet
+```
+
+#### Using Manual Script
+
+```bash
+# Deploy to BSC Testnet
+pnpm deploy:bnou:testnet
+
+# Deploy to BSC Mainnet
+pnpm deploy:bnou:mainnet
+
+# Or manually:
+pnpm hardhat run scripts/deployBNOUToken.ts --network bscTestnet
+```
+
+#### Post-Deployment Steps
+
+After deployment, the token is created but trading is disabled. Follow these steps:
+
+```bash
+# 1. Enable trading (one-way toggle)
+# Using cast/web3.js/ethers, call:
+# bnou.enableTrading()
+
+# 2. (Optional) Adjust anti-whale limits
+# bnou.setMaxTransactionAmounts(maxBuyAmount, maxSellAmount)
+
+# 3. Add liquidity on PancakeSwap (BSC Testnet)
+# Pair: BNOU + BNB in equal proportion
+
+# 4. Contact BscScan for verification
+pnpm hardhat verify --network bscTestnet <CONTRACT_ADDRESS>
+```
+
+### BitnouCoin Ecosystem (Local Development)
+
+#### BitnouCoreModule (Production Template)
 
 Deploys core contracts only: BitnouCoin, BNOUSafe, MasterChef.
 Use this for production - configure pools manually after adding liquidity.
@@ -241,6 +293,7 @@ pnpm hardhat verify --network bscTestnet 0x1234...5678 0xYourInitializerAddress
 bitnou-smart-contracts/
 ├── contracts/           # Solidity smart contracts
 │   ├── BitnouCoin.sol
+│   ├── BNOU.sol                # Production token (ERC20 with anti-whale)
 │   ├── BNOUSafe.sol
 │   ├── MasterChef.sol
 │   ├── BNOUPool.sol
@@ -250,10 +303,12 @@ bitnou-smart-contracts/
 │       └── Mocks.sol
 ├── ignition/
 │   └── modules/
-│       ├── BitnouCoreModule.ts  # Production deployment
-│       └── BitnouTestModule.ts  # Development/testing deployment
+│       ├── BNOUTokenModule.ts        # BNOU token deployment (recommended)
+│       ├── BitnouCoreModule.ts       # Production deployment
+│       └── BitnouTestModule.ts       # Development/testing deployment
 ├── scripts/
-│   └── deployDummyToken.ts   # Deployment script
+│   ├── deployBNOUToken.ts        # Manual BNOU token deployment
+│   └── deployDummyToken.ts       # Mock token deployment
 ├── test/
 │   ├── BitnouCoin.test.ts
 │   └── MockBEP20.test.ts

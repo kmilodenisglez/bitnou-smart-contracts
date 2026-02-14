@@ -17,11 +17,35 @@ const bscTestnetRpcUrl = process.env.BSC_TESTNET_RPC_URL || 'https://data-seed-p
 const config: HardhatUserConfig = {
   plugins: [hardhatToolboxViemPlugin, hardhatMochaPlugin],
   solidity: {
-    version: '0.8.15',
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 800
+    compilers: [
+      {
+        version: '0.8.15',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 800
+          }
+        }
+      },
+      {
+        version: '0.8.17',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 800
+          }
+        }
+      }
+    ],
+    overrides: {
+      'contracts/BNOU.sol': {
+        version: '0.8.17',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 800
+          }
+        }
       }
     }
   },

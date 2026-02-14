@@ -11,7 +11,11 @@
     "node": "hardhat node",
     "test": "hardhat test mocha",
     "test:all": "hardhat test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy:bnou:testnet": "hardhat run scripts/deployBNOUToken.ts --network bscTestnet",
+    "deploy:bnou:mainnet": "hardhat run scripts/deployBNOUToken.ts --network bsc",
+    "ignition:bnou:testnet": "hardhat ignition deploy ignition/modules/BNOUTokenModule.ts --network bscTestnet",
+    "ignition:bnou:mainnet": "hardhat ignition deploy ignition/modules/BNOUTokenModule.ts --network bsc"
   },
   "keywords": [],
   "author": "",

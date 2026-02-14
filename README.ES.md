@@ -157,11 +157,63 @@ pnpm hardhat test mocha test/BitnouCoin.test.ts
 
 ## Despliegue
 
-### Usando Hardhat Ignition
+### Token BNOU (ERC20 con Protección Anti-Ballena)
 
-El proyecto incluye dos módulos de despliegue Ignition:
+El módulo **BNOUTokenModule** despliega el contrato de token BNOU con características lisas para producción:
+- Implementación estándar de ERC20
+- Selección dinámica de router (BSC Mainnet/Testnet, Ethereum)
+- Protección anti-ballena con límites ajustables
+- Toggle de trading para prevenir front-running en lanzamiento
+- Recuperación de emergencia de tokens
 
-#### BitnouCoreModule (Producción)
+#### Usando Ignition (Recomendado)
+
+```bash
+# Desplegar en BSC Testnet
+pnpm ignition:bnou:testnet
+
+# Desplegar en BSC Mainnet
+pnpm ignition:bnou:mainnet
+
+# O manualmente:
+pnpm hardhat ignition deploy ignition/modules/BNOUTokenModule.ts --network bscTestnet
+```
+
+#### Usando Script Manual
+
+```bash
+# Desplegar en BSC Testnet
+pnpm deploy:bnou:testnet
+
+# Desplegar en BSC Mainnet
+pnpm deploy:bnou:mainnet
+
+# O manualmente:
+pnpm hardhat run scripts/deployBNOUToken.ts --network bscTestnet
+```
+
+#### Pasos Post-Despliegue
+
+Después del despliegue, el token se crea pero el trading está deshabilitado. Sigue estos pasos:
+
+```bash
+# 1. Habilitar trading (toggle de una vía)
+# Usando cast/web3.js/ethers, llama:
+# bnou.enableTrading()
+
+# 2. (Opcional) Ajustar límites anti-ballena
+# bnou.setMaxTransactionAmounts(maxCompraAmount, maxVentaAmount)
+
+# 3. Agregar liquidez en PancakeSwap (BSC Testnet)
+# Par: BNOU + BNB en proporción igual
+
+# 4. Contactar BscScan para verificación
+pnpm hardhat verify --network bscTestnet <DIRECCION_CONTRATO>
+```
+
+### Ecosistema BitnouCoin (Desarrollo Local)
+
+#### BitnouCoreModule (Plantilla Producción)
 
 Despliega solo contratos principales: BitnouCoin, BNOUSafe, MasterChef.
 Usar para producción - configurar pools manualmente después de añadir liquidez.
@@ -241,6 +293,7 @@ pnpm hardhat verify --network bscTestnet 0x1234...5678 0xTuDireccionInicializado
 bitnou-smart-contracts/
 ├── contracts/           # Contratos inteligentes Solidity
 │   ├── BitnouCoin.sol
+│   ├── BNOU.sol                # Token producción (ERC20 con anti-ballena)
 │   ├── BNOUSafe.sol
 │   ├── MasterChef.sol
 │   ├── BNOUPool.sol
@@ -250,10 +303,12 @@ bitnou-smart-contracts/
 │       └── Mocks.sol
 ├── ignition/
 │   └── modules/
-│       ├── BitnouCoreModule.ts  # Despliegue producción
-│       └── BitnouTestModule.ts  # Despliegue desarrollo/testing
+│       ├── BNOUTokenModule.ts       # Despliegue token BNOU (recomendado)
+│       ├── BitnouCoreModule.ts      # Despliegue producción
+│       └── BitnouTestModule.ts      # Despliegue desarrollo/testing
 ├── scripts/
-│   └── deployDummyToken.ts   # Script de despliegue
+│   ├── deployBNOUToken.ts        # Despliegue manual token BNOU
+│   └── deployDummyToken.ts       # Despliegue token mock
 ├── test/
 │   ├── BitnouCoin.test.ts
 │   └── MockBEP20.test.ts
