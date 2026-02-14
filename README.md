@@ -159,14 +159,32 @@ pnpm hardhat test mocha test/BitnouCoin.test.ts
 
 ### Using Hardhat Ignition
 
-The project includes an Ignition deployment module for the full ecosystem:
+The project includes two Ignition deployment modules:
+
+#### BitnouCoreModule (Production)
+
+Deploys core contracts only: BitnouCoin, BNOUSafe, MasterChef.
+Use this for production - configure pools manually after adding liquidity.
 
 ```bash
 # Deploy to BSC Testnet
-pnpm hardhat ignition deploy ignition/modules/BitnouModule.ts --network bscTestnet
+pnpm hardhat ignition deploy ignition/modules/BitnouCoreModule.ts --network bscTestnet
 
 # Deploy to BSC Mainnet
-pnpm hardhat ignition deploy ignition/modules/BitnouModule.ts --network bsc
+pnpm hardhat ignition deploy ignition/modules/BitnouCoreModule.ts --network bsc
+```
+
+#### BitnouTestModule (Development/Testing)
+
+Extends BitnouCoreModule with MockBEP20 (dummyToken) and staking pools.
+Use this for local development and testnet integration testing.
+
+```bash
+# Deploy to local Hardhat network
+pnpm hardhat ignition deploy ignition/modules/BitnouTestModule.ts --network hardhat
+
+# Deploy to BSC Testnet (for testing)
+pnpm hardhat ignition deploy ignition/modules/BitnouTestModule.ts --network bscTestnet
 ```
 
 ### Manual Deployment Order
@@ -232,7 +250,8 @@ bitnou-smart-contracts/
 │       └── Mocks.sol
 ├── ignition/
 │   └── modules/
-│       └── BitnouModule.ts   # Ignition deployment module
+│       ├── BitnouCoreModule.ts  # Production deployment
+│       └── BitnouTestModule.ts  # Development/testing deployment
 ├── scripts/
 │   └── deployDummyToken.ts   # Deployment script
 ├── test/

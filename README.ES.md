@@ -159,14 +159,32 @@ pnpm hardhat test mocha test/BitnouCoin.test.ts
 
 ### Usando Hardhat Ignition
 
-El proyecto incluye un módulo de despliegue Ignition para el ecosistema completo:
+El proyecto incluye dos módulos de despliegue Ignition:
+
+#### BitnouCoreModule (Producción)
+
+Despliega solo contratos principales: BitnouCoin, BNOUSafe, MasterChef.
+Usar para producción - configurar pools manualmente después de añadir liquidez.
 
 ```bash
 # Desplegar en BSC Testnet
-pnpm hardhat ignition deploy ignition/modules/BitnouModule.ts --network bscTestnet
+pnpm hardhat ignition deploy ignition/modules/BitnouCoreModule.ts --network bscTestnet
 
 # Desplegar en BSC Mainnet
-pnpm hardhat ignition deploy ignition/modules/BitnouModule.ts --network bsc
+pnpm hardhat ignition deploy ignition/modules/BitnouCoreModule.ts --network bsc
+```
+
+#### BitnouTestModule (Desarrollo/Testing)
+
+Extiende BitnouCoreModule con MockBEP20 (dummyToken) y pools de staking.
+Usar para desarrollo local y pruebas de integración en testnet.
+
+```bash
+# Desplegar en red local Hardhat
+pnpm hardhat ignition deploy ignition/modules/BitnouTestModule.ts --network hardhat
+
+# Desplegar en BSC Testnet (para testing)
+pnpm hardhat ignition deploy ignition/modules/BitnouTestModule.ts --network bscTestnet
 ```
 
 ### Orden de Despliegue Manual
@@ -232,7 +250,8 @@ bitnou-smart-contracts/
 │       └── Mocks.sol
 ├── ignition/
 │   └── modules/
-│       └── BitnouModule.ts   # Módulo de despliegue Ignition
+│       ├── BitnouCoreModule.ts  # Despliegue producción
+│       └── BitnouTestModule.ts  # Despliegue desarrollo/testing
 ├── scripts/
 │   └── deployDummyToken.ts   # Script de despliegue
 ├── test/
