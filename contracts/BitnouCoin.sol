@@ -507,7 +507,7 @@ contract BitnouCoin is BEP20 , Ownable{
 
     event SwapAndLiquify(uint256 tokensSwapped, uint256 ethReceived, uint256 tokensIntoLiqudity);
 
-    constructor(address _initializer) BEP20("BitnouCoin", "BNOU") {
+    constructor(address _initializer) BEP20("BitnouCoin Testnet", "tBNOU") {
 
         IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
          // Create a uniswap pair for this new token

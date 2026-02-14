@@ -30,7 +30,7 @@ export default buildModule("BitnouModule", (m) => {
 
   // 4. dummyToken
   // Constructor: (name, symbol, supply, initializer)
-  const dummyToken = m.contract("dummyToken", ["Dummy Token", "DUM", 1000000n * 10n**18n, initializer], {
+  const dummyToken = m.contract("MockBEP20", ["Dummy Token", "DUM", 1000000n * 10n**18n, initializer], {
       from: initializer,
       id: "AllowedDummyToken"
   });

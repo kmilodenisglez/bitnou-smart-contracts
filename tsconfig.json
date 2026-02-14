@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "Node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "lib": ["ES2021", "DOM"],
     "outDir": "dist",
     "rootDir": "./",
@@ -11,7 +11,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "types": ["node", "hardhat"]
+    "types": ["node", "hardhat", "mocha"]
   },
-  "include": ["hardhat.config.ts", "scripts", "test", "typechain-types", "ignition"]
+  "include": ["hardhat.config.ts", "scripts", "test", "ignition"]
 }
