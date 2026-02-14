@@ -6,8 +6,6 @@
   "type": "module",
   "scripts": {
     "compile": "hardhat compile",
-    "deploy:dummy:bsc": "hardhat run scripts/deployDummyToken.ts --network bsc",
-    "deploy:dummy:bscTestnet": "hardhat run scripts/deployDummyToken.ts --network bscTestnet",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,sol,md}\"",
     "lint": "eslint \"{scripts,test}/**/*.{ts,tsx}\" hardhat.config.ts",
     "node": "hardhat node",
