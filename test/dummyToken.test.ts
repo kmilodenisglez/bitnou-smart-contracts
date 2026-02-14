@@ -1,6 +1,8 @@
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { expect } from 'chai'
 import { ethers } from 'hardhat'
+import chai, { expect } from 'chai'
+import chaiAsPromised from 'chai-as-promised'
+
+chai.use(chaiAsPromised)
 
 describe('MockBEP20', () => {
   async function deployFixture() {
@@ -13,13 +15,13 @@ describe('MockBEP20', () => {
   }
 
   it('mints the entire supply to the initializer', async () => {
-    const { owner, token, mintAmount } = await loadFixture(deployFixture)
+    const { owner, token, mintAmount } = await deployFixture()
     expect(await token.totalSupply()).to.equal(mintAmount)
     expect(await token.balanceOf(owner.address)).to.equal(mintAmount)
   })
 
   it('lets a flagged manager mint additional tokens', async () => {
-    const { other, token } = await loadFixture(deployFixture)
+    const { other, token } = await deployFixture()
     await token.management(other.address, true)
     const minted = ethers.parseUnits('123', 18)
     await token.connect(other).mintTokens(other.address, minted)
@@ -27,9 +29,9 @@ describe('MockBEP20', () => {
   })
 
   it('reverts when a non-manager tries to mint', async () => {
-    const { other, token } = await loadFixture(deployFixture)
+    const { other, token } = await deployFixture()
     const minted = ethers.parseUnits('5', 18)
-    await expect(token.connect(other).mintTokens(other.address, minted)).to.be.revertedWith(
+    await expect(token.connect(other).mintTokens(other.address, minted)).to.be.rejectedWith(
       'Ownable: caller is not the Manager'
     )
   })

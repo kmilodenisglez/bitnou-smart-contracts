@@ -5,21 +5,32 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "hardhat test",
     "compile": "hardhat compile",
+    "deploy:dummy:bsc": "hardhat run scripts/deployDummyToken.ts --network bsc",
+    "deploy:dummy:bscTestnet": "hardhat run scripts/deployDummyToken.ts --network bscTestnet",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,sol,md}\"",
     "lint": "eslint \"{scripts,test}/**/*.{ts,tsx}\" hardhat.config.ts",
-    "typecheck": "tsc --noEmit",
-    "format": "prettier --write \"**/*.{ts,tsx,js,json,sol,md}\""
+    "node": "hardhat node",
+    "test": "hardhat test",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.12.1",
   "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^4.0.4",
+    "@nomicfoundation/hardhat-ignition": "^3.0.7",
+    "@nomicfoundation/hardhat-ignition-ethers": "^3.0.7",
     "@nomicfoundation/hardhat-network-helpers": "^3.0.3",
+    "@nomicfoundation/hardhat-typechain": "^3.0.2",
+    "@nomicfoundation/hardhat-verify": "^3.0.10",
+    "@typechain/ethers-v6": "^0.5.1",
     "@types/node": "^25.2.3",
     "@typescript-eslint/eslint-plugin": "^8.55.0",
     "@typescript-eslint/parser": "^8.55.0",
+    "chai": "^5.3.3",
+    "chai-as-promised": "^8.0.2",
     "eslint": "^10.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
@@ -27,6 +38,7 @@
     "hardhat": "^3.1.7",
     "prettier": "^3.8.1",
     "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
     "typescript": "^5.9.3"
   },
   "dependencies": {
