@@ -1,15 +1,22 @@
-import { ethers } from 'hardhat'
+import hre from 'hardhat'
+import { parseUnits } from 'viem'
 
 async function main() {
-  const [deployer] = await ethers.getSigners()
+  const connection = await hre.network.connect()
+  const { viem } = connection as { viem: typeof connection.viem }
 
-  console.log('Deploying MockBEP20 with account:', deployer.address)
+  const [deployer] = await viem.getWalletClients()
 
-  const MockBEP20 = await ethers.getContractFactory('MockBEP20')
-  const dummy = await MockBEP20.deploy('DummyToken', 'DUMMY', ethers.parseUnits('1000000', 18), deployer.address)
-  await dummy.waitForDeployment()
+  console.log('Deploying MockBEP20 with account:', deployer.account.address)
 
-  console.log('MockBEP20 deployed at', dummy.target)
+  const dummy = await viem.deployContract('MockBEP20', [
+    'DummyToken',
+    'DUMMY',
+    parseUnits('1000000', 18),
+    deployer.account.address
+  ])
+
+  console.log('MockBEP20 deployed at', dummy.address)
 }
 
 main().catch((error) => {

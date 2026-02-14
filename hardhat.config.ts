@@ -1,10 +1,11 @@
 import type { HardhatUserConfig } from 'hardhat/config'
-import hardhatEthersPlugin from '@nomicfoundation/hardhat-ethers'
-import '@nomicfoundation/hardhat-ignition-ethers'
-import '@nomicfoundation/hardhat-typechain'
+import hardhatToolboxViemPlugin from '@nomicfoundation/hardhat-toolbox-viem'
+import hardhatMochaPlugin from '@nomicfoundation/hardhat-mocha'
+
+// import '@nomicfoundation/hardhat-ignition-ethers'
 import '@nomicfoundation/hardhat-verify'
 import * as dotenv from 'dotenv'
-import etherscanConfig from './etherscan.config'
+import etherscanConfig from './etherscan.config.js'
 
 dotenv.config()
 
@@ -14,13 +15,37 @@ const bscMainnetRpcUrl = process.env.BSC_MAINNET_RPC_URL || 'https://bsc-datasee
 const bscTestnetRpcUrl = process.env.BSC_TESTNET_RPC_URL || 'https://data-seed-prebsc-1-s1.binance.org:8545/'
 
 const config: HardhatUserConfig = {
-  plugins: [hardhatEthersPlugin],
+  plugins: [hardhatToolboxViemPlugin, hardhatMochaPlugin],
   solidity: {
-    version: '0.8.15',
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 800
+    compilers: [
+      {
+        version: '0.8.15',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 800
+          }
+        }
+      },
+      {
+        version: '0.8.17',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 800
+          }
+        }
+      }
+    ],
+    overrides: {
+      'contracts/BNOU.sol': {
+        version: '0.8.17',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 800
+          }
+        }
       }
     }
   },
@@ -29,12 +54,6 @@ const config: HardhatUserConfig = {
     tests: './test',
     cache: './cache',
     artifacts: './artifacts'
-  },
-  typechain: {
-    outDir: 'typechain-types',
-    target: 'ethers-v6',
-    alwaysGenerateOverloads: false,
-    dontOverrideCompile: false
   },
   networks: {
     hardhat: {
@@ -55,9 +74,6 @@ const config: HardhatUserConfig = {
       accounts,
       gasPrice: 20_000_000_000
     }
-  },
-  mocha: {
-    timeout: 20000
   },
   ...etherscanConfig
 }
