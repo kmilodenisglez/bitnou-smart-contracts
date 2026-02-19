@@ -114,26 +114,61 @@ BSCSCAN_API_KEY=your_bscscan_api_key
 - [BNB Smart Chain Faucet](https://testnet.bnbchain.org/faucet-smart)
 - [Chainlink Faucet](https://faucets.chain.link/bnb-chain-testnet)
 
-### Local Development (Hardhat)
+### Local Development
 
-| Parameter | Value |
-|-----------|-------|
-| Network Name | `hardhat` |
-| Chain ID | `31337` |
-| Type | `edr-simulated` |
+You have **two options** for local testing:
 
-### Local Development Node
+#### Option 1: Isolated Local Network (Faster, Simpler)
 
-1. Start the persistent Hardhat node that exposes the localnet RPC endpoint:
+```bash
+# Terminal 1: Start isolated Hardhat node
+pnpm hardhat node
 
-	```bash
-	pnpm localnet
-	```
+# Terminal 2: Deploy BNOU.dev
+pnpm deploy:bnou:dev
+```
 
-	This runs Hardhat Node with `--hostname 0.0.0.0 --port 8545 --chain-id 31337` so other shells, scripts, or clients can connect to `http://127.0.0.1:8545` while the process stays alive (see https://hardhat.org/docs/guides/hardhat-node).
+**Use this for**: Unit tests, rapid development, basic contract testing
 
-	> **Note:** The BNOU contract is configured to detect chain ID `31337` (Hardhat) and skip liquidity pair creation since the Uniswap router doesn't exist locally. This allows the token to deploy and be tested for basic functionality (transfers, balances, ownership) without relying on external DEX contracts. On production networks (BSC, Ethereum), the token will create a pair automatically.
+#### Option 2: Forked BSC Testnet (More Realistic)
 
+```bash
+# Terminal 1: Start Hardhat node forked from BSC Testnet
+pnpm node:fork:testnet
+
+# Terminal 2: Deploy BNOU.dev
+pnpm deploy:bnou:dev
+```
+
+**Use this for**: DEX interactions, testing swaps, liquidity testing, full ecosystem testing
+
+#### Comparison: Isolated vs. Forked
+
+| Feature | Isolated Localnet | Forked Testnet |
+|---------|-------------------|----------------|
+| **Network Type** | Hardhat (CLI 31337) | BSC Testnet fork (CLI 97) |
+| **Initial State** | Empty (no contracts) | Full testnet state (existing contracts + liquidity) |
+| **PancakeSwap Router** | ❌ Not available | ✅ Available with real liquidity |
+| **Speed** | ⚡ Ultra fast | 🔹 Slower (5-20GB download) |
+| **Use Case** | Unit testing | DEX + full ecosystem testing |
+| **Storage** | ~100MB | 5-20GB |
+| **Gas Simulation** | Yes | Yes |
+
+The **BNOU.dev contract** is a development version of BNOU that:
+- Supports Hardhat's chain ID (31337)
+- Skips pair creation on local networks (since routers don't exist)
+- Identical to production BNOU otherwise
+
+### Contracts
+
+This project maintains **two contract versions**:
+
+| File | Network | Use Case |
+|------|---------|----------|
+| `BNOU.sol` | Mainnet, Testnet, Ethereum | Production deployments |
+| `BNOU.dev.sol` | Hardhat (31337) | Local development & testing |
+
+Both compile to separate artifacts: `BNOU` and `BNOUDev` respectively.
 
 ## Scripts
 
@@ -142,14 +177,12 @@ BSCSCAN_API_KEY=your_bscscan_api_key
 | `pnpm compile` | Compile all Solidity contracts |
 | `pnpm test` | Run Mocha test suite |
 | `pnpm test:all` | Run all test runners (Mocha + Node.js) |
-| `pnpm localnet` | Launch Hardhat node bound to 0.0.0.0:8545 for persistent localnet testing |
-| `pnpm node` | Start a quick Hardhat node (default settings) |
+| `pnpm node` | Start a Hardhat node (default, isolated) |
+| `pnpm node:fork:testnet` | Start a Hardhat node forked from BSC Testnet |
 
-| `pnpm deploy:ignition:localhost` | Deploy the BNOU token via Ignition onto the running `localhost` Hardhat network |
-| `pnpm deploy:ignition:localhost:fresh` | Clear Ignition deployments and redeploy BNOU fresh (useful after contract changes) |
-| `pnpm deploy:ignition:testnet` | Deploy the BNOU token via Ignition to BSC Testnet |
-| `pnpm deploy:ignition:mainnet` | Deploy the BNOU token via Ignition to BSC Mainnet |
-| `pnpm deploy:dummy` | Deploy a mock BEP20 token for testing (local only) |
+| `pnpm deploy:bnou:dev` | Deploy BNOU.dev to forked testnet or local Hardhat |
+| `pnpm deploy:ignition:testnet` | Deploy BNOU (production) via Ignition to BSC Testnet |
+| `pnpm deploy:ignition:mainnet` | Deploy BNOU (production) via Ignition to BSC Mainnet |
 
 | `pnpm lint` | Run ESLint |
 | `pnpm format` | Format code with Prettier |
@@ -218,43 +251,7 @@ After deployment, the token is created but trading is disabled. Follow these ste
 pnpm hardhat verify --network bscTestnet <CONTRACT_ADDRESS>
 ```
 
-### BitnouCoin Ecosystem (Local Development)
 
-#### BitnouCoreModule (Production Template)
-
-Deploys core contracts only: BitnouCoin, BNOUSafe, MasterChef.
-Use this for production - configure pools manually after adding liquidity.
-
-```bash
-# Deploy to BSC Testnet
-pnpm hardhat ignition deploy ignition/modules/BitnouCoreModule.ts --network bscTestnet
-
-# Deploy to BSC Mainnet
-pnpm hardhat ignition deploy ignition/modules/BitnouCoreModule.ts --network bsc
-```
-
-#### BitnouTestModule (Development/Testing)
-
-Extends BitnouCoreModule with MockBEP20 (dummyToken) and staking pools.
-Use this for local development and testnet integration testing.
-
-```bash
-# Deploy to local Hardhat network
-pnpm hardhat ignition deploy ignition/modules/BitnouTestModule.ts --network hardhat
-
-# Deploy to BSC Testnet (for testing)
-pnpm hardhat ignition deploy ignition/modules/BitnouTestModule.ts --network bscTestnet
-```
-
-### Manual Deployment Order
-
-1. **BitnouCoin** - Main token (requires PancakeSwap router at hardcoded address)
-2. **BNOUSafe** - Treasury (requires BitnouCoin address)
-3. **MasterChef** - Staking rewards (requires BitnouCoin and BNOUSafe addresses)
-4. **Pool Token** - LP or staking token
-5. **Add Pool to MasterChef** - `masterChef.add(allocPoint, lpToken, isRegular, withUpdate)`
-6. **BNOUPool** - Fixed staking (requires pool token, MasterChef, and pool ID)
-7. **BNOUFlexiblePool** - Flexible staking (requires BitnouCoin and BNOUPool)
 
 ### Important Notes
 
@@ -300,7 +297,8 @@ pnpm hardhat verify --network bscTestnet 0x1234...5678 0xYourInitializerAddress
 bitnou-smart-contracts/
 ├── contracts/           # Solidity smart contracts
 │   ├── BitnouCoin.sol
-│   ├── BNOU.sol                # Production token (ERC20 with anti-whale)
+│   ├── BNOU.sol                 # Production token (ERC20 with anti-whale)
+│   ├── BNOU.dev.sol             # Development token (supports Hardhat chain ID 31337)
 │   ├── BNOUSafe.sol
 │   ├── MasterChef.sol
 │   ├── BNOUPool.sol
@@ -310,12 +308,11 @@ bitnou-smart-contracts/
 │       └── Mocks.sol
 ├── ignition/
 │   └── modules/
-│       ├── BNOUTokenModule.ts        # BNOU token deployment (recommended)
-│       ├── BitnouCoreModule.ts       # Production deployment
-│       └── BitnouTestModule.ts       # Development/testing deployment
+│       ├── BNOUTokenModule.ts    # BNOU token deployment (production)
+│       ├── BitnouCoreModule.ts   # BitnouCoin ecosystem (production)
+│       └── BitnouTestModule.ts   # Full ecosystem with staking (development)
 ├── scripts/
-│   ├── deployBNOUToken.ts        # Manual BNOU token deployment
-│   └── deployDummyToken.ts       # Mock token deployment
+│   └── deployBNOUDev.ts         # Deploy BNOU.dev to local network
 ├── test/
 │   ├── BitnouCoin.test.ts
 │   └── MockBEP20.test.ts
