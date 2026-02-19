@@ -7,7 +7,7 @@ const START_BLOCK = 0; // Starts immediately at block 0
  * BitnouCoreModule - Production deployment module
  * 
  * Deploys the core Bitnou ecosystem contracts:
- * - BitnouCoin: Main BEP-20 token with auto-liquidity and fees
+ * - BNOU: Main ERC-20 token with auto-liquidity and fees
  * - BNOUSafe: Treasury contract for token management
  * - MasterChef: Staking rewards distribution
  * 
@@ -22,11 +22,11 @@ const START_BLOCK = 0; // Starts immediately at block 0
 export default buildModule("BitnouCoreModule", (m) => {
   const initializer = m.getAccount(0);
 
-  // 1. BitnouCoin
+  // 1. BNOU (Main Token)
   // Note: Router address is hardcoded in constructor
   // - Testnet: 0xD99D1c33F9fC3444f8101754aBC46c52416550D1
   // - Mainnet: 0x10ED43C718714eb63d5aA57B78B54704E256024E
-  const bitnou = m.contract("BitnouCoin", [initializer], {
+  const bitnou = m.contract("BNOU", [initializer], {
     from: initializer,
   });
 

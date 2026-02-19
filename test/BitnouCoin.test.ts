@@ -9,7 +9,7 @@ import { getAddress } from 'viem'
 
 const TESTNET_ROUTER = '0xD99D1c33F9fC3444f8101754aBC46c52416550D1'
 
-describe('BitnouCoin (Testnet Config)', () => {
+describe('BNOU (Testnet Config)', () => {
   /**
    * Deploy fixture - sets up mock router and deploys BitnouCoin
    * Uses setCode to mock the PancakeSwap router at the hardcoded testnet address
@@ -40,11 +40,10 @@ describe('BitnouCoin (Testnet Config)', () => {
       await networkHelpers.setCode(TESTNET_ROUTER, code)
     }
 
-    // 3. Deploy BitnouCoin
-    // NOTE: Use a different address for initializer than the deployer
-    // because the constructor excludes both owner() and _initializer from fees,
-    // and if they're the same address, the second excludeFromFees call fails
-    const bitnou = await viem.deployContract('BitnouCoin', [initializer.account.address])
+    // 3. Deploy BNOUDev (development version that supports chainId 31337/Hardhat)
+    // NOTE: BNOU rejects chainId 31337, so we use BNOUDev for testing
+    // BNOUDev has identical logic but allows local Hardhat testing
+    const bitnou = await viem.deployContract('BNOUDev')
 
     return { 
       owner, 
@@ -71,7 +70,7 @@ describe('BitnouCoin (Testnet Config)', () => {
 
     it('has the correct name', async () => {
       const { bitnou } = await getFixture()
-      expect(await bitnou.read.name()).to.equal('BitnouCoin')
+      expect(await bitnou.read.name()).to.equal('BITNOU')
     })
 
     it('has the correct symbol', async () => {
@@ -86,11 +85,11 @@ describe('BitnouCoin (Testnet Config)', () => {
   })
 
   describe('Initial Setup', () => {
-    it('sets initializer as owner', async () => {
-      const { bitnou, initializerAddress } = await getFixture()
+    it('sets deployer as owner', async () => {
+      const { bitnou, ownerAddress } = await getFixture()
       const owner = await bitnou.read.owner()
-      // The constructor transfers ownership to _initializer at the end
-      expect(getAddress(owner)).to.equal(getAddress(initializerAddress))
+      // BNOUDev assigns ownership to the deployer (owner), not initializer
+      expect(getAddress(owner)).to.equal(getAddress(ownerAddress))
     })
 
     it('initializes with non-zero total supply', async () => {

@@ -6,7 +6,10 @@ pragma solidity ^0.8.15;
  * @dev Mock Uniswap V2 Factory for testing - creates MockPair instances
  */
 contract MockFactory {
-    function createPair(address tokenA, address tokenB) external returns (address pair) {
+    function createPair(address, address) external returns (address pair) {
+        // Note: Token parameters are intentionally unused in mock implementation
+        // This matches the interface without tracking pairs
+        // (Solidity convention: omit parameter names to silence unused variable warnings)
         return address(new MockPair());
     }
 }
